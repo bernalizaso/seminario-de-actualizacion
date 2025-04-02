@@ -2,6 +2,7 @@
 #include <string>
 #include <cctype> //para find_first_not_of y isupper
 #include <vector>
+#include <cmath>
 
 void limpiarBuffer();
 void menuInicio();
@@ -10,6 +11,7 @@ void menuIngreso();
 bool validacion();
 void cambiarPassword();
 void menuCreacion();
+void menuArticulos();
 
 void limpiarBuffer()
 {
@@ -28,26 +30,162 @@ struct User
 class Articulo
 {
 private:
+    std::string nombre;
     int id;
     double precio;
     int stock;
 
 public:
-    Articulo();
-    ~Articulo();
-    int getId();
-    int getStock();
-    double getPrecio();
+    Articulo(std::string nombre_, int stock, double precio_, int id_);
+    ~Articulo(){};
+    int getId() const;
+    int getStock() const;
+    double getPrecio() const;
+    std::string getNombre() const;
     void setStock(int stock_);
-    void setPrice(double precio_);
+    void setPrecio(double precio_);
     void setId(int id_);
+    void setNombre(std::string nombre_);
 };
+Articulo::Articulo(std::string nombre_, int stock_, double precio_, int id_)
+    : nombre(nombre_), stock(stock_), precio(precio_), id(id_) {}
+int Articulo::getId() const { return id; }
+int Articulo::getStock() const { return stock; }
+double Articulo::getPrecio() const { return precio; }
+std::string Articulo::getNombre() const { return nombre; }
 
+void Articulo::setStock(int stock_) { stock = stock_; }
+void Articulo::setPrecio(double precio_) { precio = precio_; }
+void Articulo::setId(int id_) { id = id_; }
+void Articulo::setNombre(std::string nombre_) { nombre = nombre_; }
 
 std::vector<User>
     usuarios;
 User UserData;
 
+// ZONA CONTROLADORES
+
+class ArticulosController
+{
+private:
+    std::vector<Articulo> Articulos;
+
+public:
+    ArticulosController();
+    ~ArticulosController();
+    void crearArticulo()
+    {
+        std::string nombreArticulo;
+        int idArticulo, stockArticulo;
+        double precioArticulo;
+        std::cout << "Ingrese el nombre del articulo" << std::endl;
+        std::getline(std::cin, nombreArticulo);
+        std::cout << "Ingrese el id del articulo" << std::endl;
+        std::cin >> idArticulo;
+        std::cout << "Ingrese el stock del articulo" << std::endl;
+        std::cin >> stockArticulo;
+        std::cout << "Ingrese el precio del articulo" << std::endl;
+        std::cin >> precioArticulo;
+
+        for (const Articulo &art : Articulos)
+        {
+            if (art.getId() == idArticulo || idArticulo <= 0)
+            {
+                std::cout << "Error: ID ya registrado o es invalido.\n";
+                limpiarBuffer();
+                return;
+            }
+        }
+        if (nombreArticulo.empty() || stockArticulo < 0 || precioArticulo < 0)
+        {
+            std::cout << "El articulo debe tener un nombre, id, precio y stock validos" << std::endl;
+            limpiarBuffer();
+            return;
+        }
+        else
+        {
+            Articulo ArticuloCreado(nombreArticulo, stockArticulo, precioArticulo, idArticulo);
+            Articulos.push_back(ArticuloCreado);
+            std::cout << "Articulo creado exitosamen3" << std::endl;
+            limpiarBuffer();
+            return;
+        }
+    };
+    void eliminarArticulo()
+    {
+        int id;
+        std::cout << "Ingrese el ID del articulo a eliminar: ";
+        std::cin >> id;
+
+        for (int i = 0; i < Articulos.size(); ++i)
+        {
+            if (Articulos[i].getId() == id)
+            {
+                Articulos.erase(Articulos.begin() + i);
+                std::cout << "Articulo eliminado";
+                return;
+            }
+        }
+    };
+    void editarArticulo()
+    {
+        int id;
+        std::cout << "Ingrese el ID del articulo a editar: ";
+        std::cin >> id;
+
+        for (auto &articulo : Articulos)
+        {
+            if (articulo.getId() == id)
+            {
+                std::string nuevoNombre;
+                int nuevoStock;
+                double nuevoPrecio;
+
+                std::cout << "Nuevo nombre (" << articulo.getNombre() << "): ";
+                std::cin.ignore();
+                std::getline(std::cin, nuevoNombre);
+                if (!nuevoNombre.empty())
+                    articulo.setNombre(nuevoNombre);
+
+                std::cout << "Nuevo stock (" << articulo.getStock() << "): ";
+                std::cin >> nuevoStock;
+                if (nuevoStock >= 0)
+                    articulo.setStock(nuevoStock);
+
+                std::cout << "Nuevo precio (" << articulo.getPrecio() << "): ";
+                std::cin >> nuevoPrecio;
+                if (nuevoPrecio > 0)
+                    articulo.setPrecio(nuevoPrecio);
+
+                std::cout << "Articulo actualizado!" << std::endl;
+                return;
+            }
+        }
+        std::cout << "Error: ID no encontrado." << std::endl;
+    }
+
+    void listarArticulos()
+    {
+        if (Articulos.empty())
+        {
+            std::cout << "No hay articulos registrados.\n";
+            return;
+        }
+
+        std::cout << "\n--- ARTICULOS ---\n";
+        for (const auto &articulo : Articulos)
+        {
+            std::cout << "ID: " << articulo.getId() << std::endl;
+            std::cout << " | Nombre: " << articulo.getNombre() << std::endl;
+            std::cout << " | Stock: " << articulo.getStock() << std::endl;
+            std::cout << " | Precio: $" << articulo.getPrecio() << std::endl;
+        }
+    };
+};
+ArticulosController::ArticulosController() = default;
+ArticulosController::~ArticulosController() = default;
+
+ArticulosController controlador;
 // ZONA FUNCIONES
 void ingreso()
 {
@@ -192,7 +330,8 @@ void menuInicio()
         std::cout << "Ingrese una opcion: " << std::endl;
         std::cout << "1.-Iniciar sesion" << std::endl;
         std::cout << "2.-Crear cuenta usuario" << std::endl;
-        std::cout << "3.-Salir" << std::endl;
+        std::cout << "3.-Articulos" << std::endl;
+        std::cout << "4.-Salir" << std::endl;
         std::cin >> opcion;
         limpiarBuffer();
 
@@ -205,6 +344,9 @@ void menuInicio()
             menuCreacion();
             break;
         case 3:
+            menuArticulos();
+            break;
+        case 4:
             std::cout << "Saliendo." << std::endl;
             return;
         default:
@@ -236,7 +378,45 @@ void menuIngreso()
         }
     }
 }
+void menuArticulos()
+{
 
+    int opcion = 0;
+
+    while (true)
+    {
+        std::cout << std::endl
+                  << "----- Menu Articulos -----" << std::endl;
+        std::cout << "1. Listar articulos" << std::endl;
+        std::cout << "2. Nuevo articulo" << std::endl;
+        std::cout << "3. Editar articulo" << std::endl;
+        std::cout << "4. Eliminar articulo" << std::endl;
+        std::cout << "5. Volver al menu principal" << std::endl;
+        std::cout << "Ingrese una opcion: ";
+        std::cin >> opcion;
+        limpiarBuffer();
+
+        switch (opcion)
+        {
+        case 1:
+            controlador.listarArticulos();
+            break;
+        case 2:
+            controlador.crearArticulo();
+            break;
+        case 3:
+            controlador.editarArticulo();
+            break;
+        case 4:
+            controlador.eliminarArticulo();
+            break;
+        case 5:
+            return;
+        default:
+            std::cout << "Opcion no valida!" << std::endl;
+        }
+    }
+}
 void menuCreacion()
 {
     int opcion = 0;
@@ -262,19 +442,6 @@ void menuCreacion()
 }
 int main()
 {
-    Articulo Lavandina1L;
-    Lavandina1L.setId(1);
-    Lavandina1L.setPrice(875.25);
-    Lavandina1L.setStock(3000);
-    Articulo Detergente;
-    Detergente.setId(4);
-    Detergente.setStock(2010);
-    Detergente.setPrice(1102.45);
-    Articulo JabonEnPolvo;
-    JabonEnPolvo.setPrice(650.22);
-    JabonEnPolvo.setId(22);
-    JabonEnPolvo.setStock(407);
-
 
     menuInicio();
 

@@ -1,10 +1,10 @@
 #include <iostream>
 #include <string>
 #include <cctype>
-
+#include <cmath>
 int main()
 {
-    std::string prueba = "!AsDdsaA123!!!!";
+    /*std::string prueba = "!AsDdsaA123!!!!";
     int contadorNoAlpha = 0;
     int contadorMayus = 0;
     for (int i = 0; i <= prueba.length() - 1; i++)
@@ -31,6 +31,9 @@ int main()
     if (8 <= prueba.length() <= 16 && contadorNoAlpha > 0 && contadorMayus >= 2)
     {
         std::cout << "Paso la prueba" << std::endl;
-    }
+    }*/
+
+    int a=2;
+    std::cout<<std::isnan(a);
     return 0;
 }
