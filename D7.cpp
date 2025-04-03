@@ -91,7 +91,7 @@ public:
         {
             if (art.getId() == idArticulo || idArticulo <= 0)
             {
-                std::cout << "Error: ID ya registrado o es invalido.\n";
+                std::cout << "Error: ID ya registrado o es invalido."<< std::endl;
                 limpiarBuffer();
                 return;
             }
@@ -114,7 +114,7 @@ public:
     void eliminarArticulo()
     {
         int id;
-        std::cout << "Ingrese el ID del articulo a eliminar: ";
+        std::cout << "Ingrese el ID del articulo a eliminar: "<< std::endl;
         std::cin >> id;
 
         for (int i = 0; i < Articulos.size(); ++i)
@@ -122,7 +122,7 @@ public:
             if (Articulos[i].getId() == id)
             {
                 Articulos.erase(Articulos.begin() + i);
-                std::cout << "Articulo eliminado";
+                std::cout << "Articulo eliminado"<< std::endl;
                 return;
             }
         }
@@ -130,7 +130,7 @@ public:
     void editarArticulo()
     {
         int id;
-        std::cout << "Ingrese el ID del articulo a editar: ";
+        std::cout << "Ingrese el ID del articulo a editar: "<< std::endl;
         std::cin >> id;
 
         for (auto &articulo : Articulos)
@@ -141,18 +141,18 @@ public:
                 int nuevoStock;
                 double nuevoPrecio;
 
-                std::cout << "Nuevo nombre (" << articulo.getNombre() << "): ";
+                std::cout << "Nuevo nombre (" << articulo.getNombre() << "): "<< std::endl;
                 std::cin.ignore();
                 std::getline(std::cin, nuevoNombre);
                 if (!nuevoNombre.empty())
                     articulo.setNombre(nuevoNombre);
 
-                std::cout << "Nuevo stock (" << articulo.getStock() << "): ";
+                std::cout << "Nuevo stock (" << articulo.getStock() << "): "<< std::endl;
                 std::cin >> nuevoStock;
                 if (nuevoStock >= 0)
                     articulo.setStock(nuevoStock);
 
-                std::cout << "Nuevo precio (" << articulo.getPrecio() << "): ";
+                std::cout << "Nuevo precio (" << articulo.getPrecio() << "): "<< std::endl;
                 std::cin >> nuevoPrecio;
                 if (nuevoPrecio > 0)
                     articulo.setPrecio(nuevoPrecio);
@@ -168,11 +168,11 @@ public:
     {
         if (Articulos.empty())
         {
-            std::cout << "No hay articulos registrados.\n";
+            std::cout << "No hay articulos registrados."<< std::endl;
             return;
         }
 
-        std::cout << "\n--- ARTICULOS ---\n";
+        std::cout << "--- ARTICULOS ---"<< std::endl;
         for (const auto &articulo : Articulos)
         {
             std::cout << "ID: " << articulo.getId() << std::endl;
@@ -184,7 +184,7 @@ public:
     void comprarArticulo()
     {
         int id, cantidad;
-        std::cout << "Ingrese el ID del articulo a comprar: ";
+        std::cout << "Ingrese el ID del articulo a comprar: "<< std::endl;
         std::cin >> id;
         limpiarBuffer();
 
@@ -194,34 +194,34 @@ public:
             {
                 if (articulo.getStock() <= 0)
                 {
-                    std::cout << "El articulo no tiene stock disponible.\n";
+                    std::cout << "El articulo no tiene stock disponible."<< std::endl;
                     return;
                 }
 
-                std::cout << "Stock disponible: " << articulo.getStock() << "\n";
-                std::cout << "Ingrese la cantidad a comprar: ";
+                std::cout << "Stock disponible: " << articulo.getStock() << ""<< std::endl;
+                std::cout << "Ingrese la cantidad a comprar: "<< std::endl;
                 std::cin >> cantidad;
                 limpiarBuffer();
 
                 if (cantidad <= 0)
                 {
-                    std::cout << "Cantidad invalida!\n";
+                    std::cout << "Cantidad invalida!";
                     return;
                 }
 
                 if (cantidad > articulo.getStock())
                 {
-                    std::cout << "No hay suficiente stock!\n";
+                    std::cout << "No hay suficiente stock!";
                     return;
                 }
 
                 articulo.setStock(articulo.getStock() - cantidad);
-                std::cout << "Compra realizada exitosamente!\n";
-                std::cout << "Stock restante: " << articulo.getStock() << "\n";
+                std::cout << "Compra realizada exitosamente!"<< std::endl;
+                std::cout << "Stock restante: " << articulo.getStock() << ""<< std::endl;
                 return;
             }
         }
-        std::cout << "Articulo no encontrado!\n";
+        std::cout << "Articulo no encontrado!";
     }
 };
 ArticulosController::ArticulosController() = default;
@@ -433,8 +433,8 @@ void menuArticulos()
         std::cout << "2. Nuevo articulo" << std::endl;
         std::cout << "3. Editar articulo" << std::endl;
         std::cout << "4. Eliminar articulo" << std::endl;
-        std::cout << "5. Comprar articulo\n";         // Nueva opción
-        std::cout << "6. Volver al menu principal\n"; // Cambiado a 6
+        std::cout << "5. Comprar articulo"<< std::endl;        
+        std::cout << "6. Volver al menu principal"<< std::endl; 
         std::cout << "Ingrese una opcion: ";
         std::cin >> opcion;
         limpiarBuffer();
