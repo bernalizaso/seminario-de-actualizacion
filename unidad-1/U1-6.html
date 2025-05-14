@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>unidad1 menu principal</title>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+
+// datos de autenticacion
+let authData = new Map();
+const maxLoginFailedAttempts = 3;
+
+// lista de productos
+let productos = [
+  { id: 1, nombre: "Lavandina x 1L", precio: 875.25, stock: 3000 },
+  { id: 4, nombre: "Detergente x 500mL", precio: 1102.45, stock: 2010 },
+  { id: 22, nombre: "Jabon en polvo x 250g", precio: 650.22, stock: 407 }
+];
+
+// utilidades de autenticacion
+function isValidUserGetData(username) {
+  return authData.get(username);
+}
+
+function authenticateUser(username, password) {
+  let api = { status: false, result: null };
+  let user = isValidUserGetData(username);
+
+  if (!user) {
+    api.result = 'USER_NOT_FOUND';
+
+  } else if (user.isLocked) {
+    api.result = 'BLOCKED_USER';
+
+  } else if (user.password === password) {
+    api.status = true;
+
+  } else {
+    user.failedLoginCounter++;
+
+    if (user.failedLoginCounter >= maxLoginFailedAttempts) {
+      user.isLocked = true;
+      api.result = 'BLOCKED_USER';
+
+    } else {
+      api.result = 'USER_PASSWORD_FAILED';
+    }
+  }
+
+  return api;
+}
+
+// validacion de seguridad de la contraseña
+function isPasswordSecure(pw) {
+  if (!pw || pw.length < 8 || pw.length > 16) {
+    return { ok: false, reason: 'longitud 8-16' };
+  }
+
+  if (!/[A-Z]/.test(pw)) {
+    return { ok: false, reason: 'una mayuscula' };
+  }
+
+  let specials = pw.match(/[^A-Za-z0-9]/g);
+  if (!specials || specials.length < 2) {
+    return { ok: false, reason: 'dos simbolos especiales' };
+  }
+
+  return { ok: true };
+}
+
+// crear nueva cuenta
+function createAccount() {
+  let username = prompt('ingrese nombre de usuario');
+
+  if (!username || isValidUserGetData(username)) {
+    alert('usuario invalido o ya existe');
+    return;
+  }
+
+  let pw = prompt('ingrese contrasenia');
+  let valid = isPasswordSecure(pw);
+
+  if (!valid.ok) {
+    alert('contrasenia insegura: ' + valid.reason);
+    return;
+  }
+
+  authData.set(username, { password: pw, failedLoginCounter: 0, isLocked: false });
+  alert('cuenta creada');
+}
+
+// cambiar contraseña de usuario
+function changePassword(username) {
+  let user = isValidUserGetData(username);
+  let pw = prompt('ingrese nueva contrasenia');
+  let valid = isPasswordSecure(pw);
+
+  if (!valid.ok) {
+    alert('contrasenia insegura: ' + valid.reason);
+    return;
+  }
+
+  if (pw === user.password) {
+    alert('igual a la anterior');
+    return;
+  }
+
+  user.password = pw;
+  user.failedLoginCounter = 0;
+  alert('contrasenia actualizada');
+}
+
+// operaciones CRUD de productos
+function listArticulos() {
+  if (productos.length === 0) {
+    alert('no hay articulos');
+    return;
+  }
+
+  let mensaje = productos
+    .map(p => `id:${p.id} nombre:${p.nombre} precio:${p.precio} stock:${p.stock}`)
+    .join('\n');
+
+  alert(mensaje);
+}
+
+function nuevoArticulo() {
+  let id = parseInt(prompt('ingrese id'));
+
+  if (isNaN(id) || productos.find(x => x.id === id)) {
+    alert('id invalido o duplicado');
+    return;
+  }
+
+  let nombre = prompt('ingrese nombre');
+  if (!nombre) {
+    alert('nombre invalido');
+    return;
+  }
+
+  let precio = parseFloat(prompt('ingrese precio'));
+  if (isNaN(precio)) {
+    alert('precio invalido');
+    return;
+  }
+
+  let stock = parseInt(prompt('ingrese stock'));
+  if (isNaN(stock)) {
+    alert('stock invalido');
+    return;
+  }
+
+  productos.push({ id, nombre, precio, stock });
+  alert('articulo agregado');
+}
+
+function editarArticulo() {
+  let id = parseInt(prompt('ingrese id a editar'));
+  let articulo = productos.find(x => x.id === id);
+
+  if (!articulo) {
+    alert('no existe');
+    return;
+  }
+
+  let nombre = prompt('ingrese nuevo nombre', articulo.nombre);
+  if (nombre) articulo.nombre = nombre;
+
+  let precio = prompt('ingrese nuevo precio', articulo.precio);
+  if (precio && !isNaN(precio)) articulo.precio = parseFloat(precio);
+
+  let stock = prompt('ingrese nuevo stock', articulo.stock);
+  if (stock && !isNaN(stock)) articulo.stock = parseInt(stock);
+
+  alert('articulo actualizado');
+}
+
+function eliminarArticulo() {
+  let id = parseInt(prompt('ingrese id a eliminar'));
+  let index = productos.findIndex(x => x.id === id);
+
+  if (index < 0) {
+    alert('no existe');
+    return;
+  }
+
+  productos.splice(index, 1);
+  alert('articulo eliminado');
+}
+
+// menu post-login
+function postLoginMenu(username) {
+  let opcion;
+
+  do {
+    opcion = prompt(
+      'menu acciones:\n'
+      + '1 cambiar contrasenia\n'
+      + '2 listar articulos\n'
+      + '3 nuevo articulo\n'
+      + '4 editar articulo\n'
+      + '5 eliminar articulo\n'
+      + '6 salir'
+    );
+
+    switch (opcion) {
+      case '1':
+        changePassword(username);
+        break;
+      case '2':
+        listArticulos();
+        break;
+      case '3':
+        nuevoArticulo();
+        break;
+      case '4':
+        editarArticulo();
+        break;
+      case '5':
+        eliminarArticulo();
+        break;
+      case '6':
+        // salir
+        break;
+      default:
+        alert('opcion invalida');
+    }
+
+  } while (opcion !== '6');
+}
+
+// flujo de login
+function loginFlow() {
+  let attempts = 0;
+
+  while (true) {
+    let username = prompt('ingrese usuario');
+    let password = prompt('ingrese contrasenia');
+    let api = authenticateUser(username, password);
+
+    if (api.status) {
+      alert('bienvenido ' + username);
+      postLoginMenu(username);
+      break;
+
+    } else {
+      if (api.result === 'BLOCKED_USER') {
+        alert('usuario bloqueado contacte al administrador');
+        break;
+      }
+
+      alert('usuario o contrasenia incorrecta');
+      attempts++;
+
+      if (attempts >= maxLoginFailedAttempts) {
+        let user = isValidUserGetData(username);
+        if (user) user.isLocked = true;
+        alert('usuario bloqueado contacte al administrador');
+        break;
+      }
+    }
+  }
+}
+
+// menu principal
+function mainMenu() {
+  let opt;
+
+  do {
+    opt = prompt(
+      'menu principal:\n'
+      + '1 iniciar sesion\n'
+      + '2 crear cuenta\n'
+      + '3 salir'
+    );
+
+    if (opt === '1') {
+      loginFlow();
+    } else if (opt === '2') {
+      createAccount();
+    } else if (opt === '3') {
+      alert('saliendo');
+    } else {
+      alert('opcion invalida');
+    }
+
+  } while (opt !== '3');
+}
+
+window.onload = mainMenu;
+
+</script>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>unidad1 menu principal</title>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+let authData = new Map()
+const maxLoginFailedAttempts = 3
+let productos = [
+  { id: 1, nombre: "Lavandina x 1L", precio: 875.25, stock: 3000 },
+  { id: 4, nombre: "Detergente x 500mL", precio: 1102.45, stock: 2010 },
+  { id: 22, nombre: "Jabon en polvo x 250g", precio: 650.22, stock: 407 }
+]
+
+authData.set('admin', { password: 'Admin@123', failedLoginCounter: 0, isLocked: false, role: 'Administrador' })
+authData.set('cliente', { password: 'Cli#4567', failedLoginCounter: 0, isLocked: false, role: 'Cliente' })
+authData.set('vendedor', { password: 'Ven$89AB', failedLoginCounter: 0, isLocked: false, role: 'Vendedor' })
+authData.set('deposito', { password: 'Dep%2345', failedLoginCounter: 0, isLocked: false, role: 'Trabajador de deposito' })
+function isValidUserGetData(username) {
+  return authData.get(username)
+}
+function authenticateUser(username, password) {
+  let api = { status: false, result: null }
+  let user = isValidUserGetData(username)
+  if (!user) {
+    api.result = 'USER_NOT_FOUND'
+  } else if (user.isLocked) {
+    api.result = 'BLOCKED_USER'
+  } else if (user.password === password) {
+    api.status = true
+  } else {
+    user.failedLoginCounter++
+    if (user.failedLoginCounter >= maxLoginFailedAttempts) {
+      user.isLocked = true
+      api.result = 'BLOCKED_USER'
+    } else {
+      api.result = 'USER_PASSWORD_FAILED'
+    }
+  }
+  return api
+}
+function isPasswordSecure(pw) {
+  if (!pw || pw.length < 8 || pw.length > 16) return { ok: false, reason: 'longitud 8-16' }
+  if (!/[A-Z]/.test(pw)) return { ok: false, reason: 'una mayuscula' }
+  let specials = pw.match(/[^A-Za-z0-9]/g)
+  if (!specials || specials.length < 2) return { ok: false, reason: 'dos simbolos especiales' }
+  return { ok: true }
+}
+function createAccount() {
+  let username = prompt('ingrese nombre de usuario')
+  if (!username || isValidUserGetData(username)) {
+    alert('usuario invalido o ya existe')
+    return
+  }
+  let role = prompt('ingrese categoria: Administrador, Cliente, Vendedor, Trabajador')
+  if (!role) {
+    alert('categoria invalida')
+    return
+  }
+  let pw = prompt('ingrese contrasenia')
+  let valid = isPasswordSecure(pw)
+  if (!valid.ok) {
+    alert('contrasenia insegura: ' + valid.reason)
+    return
+  }
+  authData.set(username, { password: pw, failedLoginCounter: 0, isLocked: false, role: role })
+  alert('cuenta creada')
+}
+function changePassword(username) {
+  let user = isValidUserGetData(username)
+  let pw = prompt('ingrese nueva contrasenia')
+  let valid = isPasswordSecure(pw)
+  if (!valid.ok) {
+    alert('contrasenia insegura: ' + valid.reason)
+    return
+  }
+  if (pw === user.password) {
+    alert('igual a la anterior')
+    return
+  }
+  user.password = pw
+  user.failedLoginCounter = 0
+  alert('contrasenia actualizada')
+}
+function listArticulos() {
+  if (productos.length === 0) {
+    alert('no hay articulos')
+    return
+  }
+  let mensaje = ''
+  for (let i = 0; i < productos.length; i++) {
+    let p = productos[i]
+    mensaje += 'id:' + p.id + ' nombre:' + p.nombre + ' precio:' + p.precio + ' stock:' + p.stock + '\n'
+  }
+  alert(mensaje)
+}
+function nuevoArticulo() {
+  let id = parseInt(prompt('ingrese id'))
+  if (isNaN(id) || productos.find(function(x) { return x.id === id })) {
+    alert('id invalido o duplicado')
+    return
+  }
+  let nombre = prompt('ingrese nombre')
+  if (!nombre) {
+    alert('nombre invalido')
+    return
+  }
+  let precio = parseFloat(prompt('ingrese precio'))
+  if (isNaN(precio)) {
+    alert('precio invalido')
+    return
+  }
+  let stock = parseInt(prompt('ingrese stock'))
+  if (isNaN(stock)) {
+    alert('stock invalido')
+    return
+  }
+  productos.push({ id: id, nombre: nombre, precio: precio, stock: stock })
+  alert('articulo agregado')
+}
+function editarArticulo() {
+  let id = parseInt(prompt('ingrese id a editar'))
+  let articulo = null
+  for (let i = 0; i < productos.length; i++) {
+    if (productos[i].id === id) {
+      articulo = productos[i]
+      break
+    }
+  }
+  if (!articulo) {
+    alert('no existe')
+    return
+  }
+  let nombre = prompt('ingrese nuevo nombre', articulo.nombre)
+  if (nombre) articulo.nombre = nombre
+  let precioStr = prompt('ingrese nuevo precio', articulo.precio)
+  let precioNum = parseFloat(precioStr)
+  if (!isNaN(precioNum)) articulo.precio = precioNum
+  let stockStr = prompt('ingrese nuevo stock', articulo.stock)
+  let stockNum = parseInt(stockStr)
+  if (!isNaN(stockNum)) articulo.stock = stockNum
+  alert('articulo actualizado')
+}
+function eliminarArticulo() {
+  let id = parseInt(prompt('ingrese id a eliminar'))
+  let index = -1
+  for (let i = 0; i < productos.length; i++) {
+    if (productos[i].id === id) {
+      index = i
+      break
+    }
+  }
+  if (index < 0) {
+    alert('no existe')
+    return
+  }
+  productos.splice(index, 1)
+  alert('articulo eliminado')
+}
+function comprarArticulo() {
+  let id = parseInt(prompt('ingrese id a comprar'))
+  let articulo = null
+  for (let i = 0; i < productos.length; i++) {
+    if (productos[i].id === id) {
+      articulo = productos[i]
+      break
+    }
+  }
+  if (!articulo) {
+    alert('articulo no valido')
+    return
+  }
+  if (articulo.stock <= 0) {
+    alert('sin stock disponible')
+    return
+  }
+  let cantidad = parseInt(prompt('ingrese cantidad a comprar'))
+  if (isNaN(cantidad) || cantidad <= 0) {
+    alert('cantidad invalida')
+    return
+  }
+  if (cantidad > articulo.stock) {
+    alert('no hay suficiente stock')
+    return
+  }
+  articulo.stock = articulo.stock - cantidad
+  alert('compra realizada. stock restante: ' + articulo.stock)
+}
+function postLoginMenu(username) {
+  let opcion
+  do {
+    opcion = prompt(
+      'menu acciones:\n'
+      + '1 cambiar contrasenia\n'
+      + '2 listar articulos\n'
+      + '3 nuevo articulo\n'
+      + '4 editar articulo\n'
+      + '5 comprar articulo\n'
+      + '6 eliminar articulo\n'
+      + '7 salir'
+    )
+    if (opcion === '1') changePassword(username)
+    else if (opcion === '2') listArticulos()
+    else if (opcion === '3') nuevoArticulo()
+    else if (opcion === '4') editarArticulo()
+    else if (opcion === '5') comprarArticulo()
+    else if (opcion === '6') eliminarArticulo()
+    else if (opcion !== '7') alert('opcion invalida')
+  } while (opcion !== '7')
+}
+function loginFlow() {
+  let attempts = 0
+  while (true) {
+    let username = prompt('ingrese usuario')
+    let password = prompt('ingrese contrasenia')
+    let api = authenticateUser(username, password)
+    if (api.status) {
+      alert('bienvenido ' + username)
+      postLoginMenu(username)
+      break
+    } else {
+      if (api.result === 'BLOCKED_USER') {
+        alert('usuario bloqueado contacte al administrador')
+        break
+      }
+      alert('usuario o contrasenia incorrecta')
+      attempts++
+      if (attempts >= maxLoginFailedAttempts) {
+        let user = isValidUserGetData(username)
+        if (user) user.isLocked = true
+        alert('usuario bloqueado contacte al administrador')
+        break
+      }
+    }
+  }
+}
+function mainMenu() {
+  let opt
+  do {
+    opt = prompt(
+      'menu principal:\n'
+      + '1 iniciar sesion\n'
+      + '2 crear cuenta\n'
+      + '3 salir'
+    )
+    if (opt === '1') loginFlow()
+    else if (opt === '2') createAccount()
+    else if (opt === '3') alert('saliendo')
+    else alert('opcion invalida')
+  } while (opt !== '3')
+}
+window.onload = mainMenu
+</script>
+</html>

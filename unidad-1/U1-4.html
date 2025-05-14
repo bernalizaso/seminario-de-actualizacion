@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Unidad 1 – Menu Principal</title>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+let authData = new Map()
+const maxLoginFailedAttempts = 3
+
+function isValidUserGetData(username) {
+  return authData.get(username)
+}
+
+function authenticateUser(username, password) {
+  let api = { status: false, result: null }
+  let u = isValidUserGetData(username)
+  if (!u) {
+    api.result = 'USER_NOT_FOUND'
+  } else if (u.isLocked) {
+    api.result = 'BLOCKED_USER'
+  } else if (u.password === password) {
+    api.status = true
+  } else {
+    u.failedLoginCounter++
+    if (u.failedLoginCounter >= maxLoginFailedAttempts) {
+      u.isLocked = true
+      api.result = 'BLOCKED_USER'
+    } else {
+      api.result = 'USER_PASSWORD_FAILED'
+    }
+  }
+  return api
+}
+
+function isPasswordSecure(pw) {
+  if (!pw || pw.length < 8 || pw.length > 16) return { ok: false, reason: 'longitud 8-16' }
+  if (!/[A-Z]/.test(pw)) return { ok: false, reason: 'una mayuscula' }
+  let specials = pw.match(/[^A-Za-z0-9]/g)
+  if (!specials || specials.length < 2) return { ok: false, reason: 'dos simbolos especiales' }
+  return { ok: true }
+}
+
+function createAccount() {
+  let username = prompt('ingrese nombre de usuario')
+  if (!username || isValidUserGetData(username)) {
+    alert('usuario invalido o ya existe')
+    return
+  }
+  let pw = prompt('ingrese contrasenia')
+  let v = isPasswordSecure(pw)
+  if (!v.ok) {
+    alert('contrasenia insegura: ' + v.reason)
+    return
+  }
+  authData.set(username, { password: pw, failedLoginCounter: 0, isLocked: false })
+  alert('cuenta creada')
+}
+
+function changePassword(username) {
+  let u = isValidUserGetData(username)
+  let pw = prompt('ingrese nueva contrasenia')
+  let v = isPasswordSecure(pw)
+  if (!v.ok) {
+    alert('contrasenia insegura: ' + v.reason)
+    return
+  }
+  if (pw === u.password) {
+    alert('igual a la anterior')
+    return
+  }
+  u.password = pw
+  u.failedLoginCounter = 0
+  alert('contrasenia actualizada')
+}
+
+function postLoginMenu(username) {
+  let opcion
+  do {
+    opcion = prompt('menu de acciones:\n1 cambiar contrasenia\n2 salir')
+    if (opcion === '1') {
+      changePassword(username)
+    } else if (opcion !== '2') {
+      alert('opcion invalida')
+    }
+  } while (opcion !== '2')
+}
+
+function loginFlow() {
+  let attempts = 0
+  while (true) {
+    let username = prompt('ingrese usuario')
+    let password = prompt('ingrese contrasenia')
+    let api = authenticateUser(username, password)
+    if (api.status) {
+      alert('bienvenido ' + username)
+      postLoginMenu(username)
+      break
+    } else {
+      if (api.result === 'BLOCKED_USER') {
+        alert('usuario bloqueado contacte al administrador')
+        break
+      }
+      alert('usuario o contrasenia incorrecta')
+      attempts++
+      if (attempts >= maxLoginFailedAttempts) {
+        let u = isValidUserGetData(username)
+        if (u) u.isLocked = true
+        alert('usuario bloqueado contacte al administrador')
+        break
+      }
+    }
+  }
+}
+
+function mainMenu() {
+  let opt
+  do {
+    opt = prompt('menu principal:\n1 iniciar sesion\n2 crear cuenta\n3 salir')
+    if (opt === '1') {
+      loginFlow()
+    } else if (opt === '2') {
+      createAccount()
+    } else if (opt === '3') {
+      alert('saliendo del sistema')
+    } else {
+      alert('opcion invalida')
+    }
+  } while (opt !== '3')
+}
+
+window.onload = mainMenu
+</script>
+</html>
