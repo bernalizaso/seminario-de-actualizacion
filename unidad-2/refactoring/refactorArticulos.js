@@ -41,6 +41,16 @@ _authData.set("deposito", {
 
 ///////////////Back////////////////////
 
+function addArticle(_id, price, _stock, name) {
+  existe = searchArticle(_id).message;
+  if (existe === "Producto encontrado") {
+    return { message: "Ya hay un articulo con esa id" };
+  }
+  newProduct = { id: _id, nombre: name, precio: price, stock: _stock };
+  _productos.push(newProduct);
+  return { message: "Producto agregado exitosamente" };
+}
+
 function changeArticleStock(cantidad, id) {
   encontrado = searchArticle(id);
 
@@ -74,10 +84,35 @@ function getArticles() {
   if (_productos.length === 0) {
     return { articles: [], message: "no hay articulos" };
   }
-  return { articles:_productos, message: "productos listados" };
+  return { articles: _productos, message: "productos listados" };
 }
 
 ////////////front///////////////
+function nuevoArticulo() {
+  let id = parseInt(prompt("ingrese id"));
+
+  if (isNaN(id)) {
+    alert("id invalido");
+    return;
+  }
+  let nombre = prompt("ingrese nombre");
+  if (!nombre) {
+    alert("El producto debe tener un nombre");
+    return;
+  }
+  let precio = parseFloat(prompt("ingrese precio"));
+  if (isNaN(precio)) {
+    alert("El producto debe tener un precio y ser numerico");
+    return;
+  }
+  let stock = parseInt(prompt("ingrese stock"));
+  if (isNaN(stock)) {
+    alert("Stock invalido");
+    return;
+  }
+  producto = addArticle(id,precio,stock,nombre)
+  alert(producto.message);
+}
 
 function buyArticle() {
   let id = parseInt(prompt("ingrese id a comprar"));
@@ -105,9 +140,10 @@ function listArticles() {
   lista = productos.articles;
 
   for (let i = 0; i < lista.length; i = i + 1) {
-  console.log(lista[i])
+    console.log(lista[i]);
   }
   alert(productos.message);
 }
 
 
+nuevoArticulo()
