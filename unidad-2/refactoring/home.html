@@ -134,37 +134,7 @@
       alert("articulo eliminado")
     }
 
-    function comprarArticulo() {//backfront
-      let id = parseInt(prompt("ingrese id a comprar"))
-      let idx = -1
-      for (let i = 0; i < productos.length; i = i + 1) {
-        if (productos[i].id === id) {
-          idx = i
-          break
-        }
-      }
-      if (idx < 0) {
-        alert("articulo no valido")
-        return
-      }
-      let a = productos[idx]
-      if (a.stock <= 0) {
-        alert("sin stock disponible")
-        return
-      }
-      let c = parseInt(prompt("ingrese cantidad a comprar"))
-      if (isNaN(c) || c <= 0) {
-        alert("cantidad invalida")
-        return
-      }
-      if (c > a.stock) {
-        alert("no hay suficiente stock")
-        return
-      }
-      a.stock = a.stock - c
-      alert("compra realizada. stock restante: " + a.stock)
-    }
-
+    
 
 class ApplicationModel{
   constructor(){

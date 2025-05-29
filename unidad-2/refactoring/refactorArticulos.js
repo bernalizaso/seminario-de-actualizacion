@@ -39,22 +39,22 @@ _authData.set("deposito", {
 
 //separacion
 
-//Back
-
-
+///////////////Back////////////////////
 
 function changeArticleStock(cantidad, id) {
   encontrado = searchArticle(id);
-  
+
   if (isNaN(encontrado.product.stock)) {
     return { message: "Stock invalido" };
+  } else if (
+    encontrado.product.stock <= 0 ||
+    cantidad > encontrado.product.stock
+  ) {
+    return { message: "No hay stock suficiente" };
+  } else {
+    encontrado.product.stock = encontrado.product.stock - cantidad;
+    return { message: "Stock cambiado exitosamente" };
   }
-  else if(encontrado.product.stock <= 0 || cantidad > encontrado.product.stock) {
-    return { message: "No hay stock suficiente" };  
-  }
-  else{
-  encontrado.product.stock = encontrado.product.stock-cantidad;  
-  return { message: "Stock cambiado exitosamente" };}
 }
 
 function searchArticle(id) {
@@ -70,7 +70,15 @@ function searchArticle(id) {
   }
 }
 
-//front
+function getArticles() {
+  if (_productos.length === 0) {
+    return { articles: [], message: "no hay articulos" };
+  }
+  return { articles:_productos, message: "productos listados" };
+}
+
+////////////front///////////////
+
 function buyArticle() {
   let id = parseInt(prompt("ingrese id a comprar"));
 
@@ -83,7 +91,7 @@ function buyArticle() {
     alert("cantidad invalida");
     return;
   } else {
-    resultado = changeArticleStock(cantidad, id) 
+    resultado = changeArticleStock(cantidad, id);
     if (resultado.message === "Stock cambiado exitosamente") {
       alert("Articulo comprado exitosamente");
     } else {
@@ -92,6 +100,14 @@ function buyArticle() {
   }
 }
 
-buyArticle();
+function listArticles() {
+  productos = getArticles();
+  lista = productos.articles;
+
+  for (let i = 0; i < lista.length; i = i + 1) {
+  console.log(lista[i])
+  }
+  alert(productos.message);
+}
 
 
