@@ -6,8 +6,6 @@
   </head>
   <body></body>
   <script type="text/javascript">
-   
-
     class ApplicationModel {
       constructor() {
         this._authData = new Map();
@@ -15,12 +13,7 @@
         this._productos = [
           { id: 1, nombre: "Lavandina x 1L", precio: 875.25, stock: 3000 },
           { id: 4, nombre: "Detergente x 500mL", precio: 1102.45, stock: 2010 },
-          {
-            id: 22,
-            nombre: "Jabon en polvo x 250g",
-            precio: 650.22,
-            stock: 407,
-          },
+          { id: 22,nombre: "Jabon en polvo x 250g", precio: 650.22, stock: 407},
         ];
         this._permissions = {
           Administrador: ["2", "3", "4", "5", "6", "8"],
@@ -29,25 +22,25 @@
           Trabajador: ["2", "3", "4"],
         };
 
-        authData.set("admin", {
+        this._authData.set("admin", {
           password: "Admin@123",
           failedLoginCounter: 0,
           isLocked: false,
           role: "Administrador",
         });
-        authData.set("cliente", {
+        this._authData.set("cliente", {
           password: "Cli#4567",
           failedLoginCounter: 0,
           isLocked: false,
           role: "Cliente",
         });
-        authData.set("vendedor", {
+        this._authData.set("vendedor", {
           password: "Ven$89AB",
           failedLoginCounter: 0,
           isLocked: false,
           role: "Vendedor",
         });
-        authData.set("deposito", {
+        this._authData.set("deposito", {
           password: "Dep%2345",
           failedLoginCounter: 0,
           isLocked: false,
@@ -56,18 +49,18 @@
       }
 
       isValidUserGetData(u) {
-        return authData.get(u);
+        return this._authData.get(u);
       }
 
       authenticateUser(u, p) {
         let api = { status: false, result: null };
-        let user = isValidUserGetData(u);
+        let user = this.isValidUserGetData(u);
         if (!user) api.result = "USER_NOT_FOUND";
         else if (user.isLocked) api.result = "BLOCKED_USER";
         else if (user.password === p) api.status = true;
         else {
           user.failedLoginCounter = user.failedLoginCounter + 1;
-          if (user.failedLoginCounter >= maxLoginFailedAttempts) {
+          if (user.failedLoginCounter >= this._maxLoginFailedAttempts) {
             user.isLocked = true;
             api.result = "BLOCKED_USER";
           } else api.result = "USER_PASSWORD_FAILED";
@@ -84,130 +77,238 @@
           return { ok: false, reason: "dos simbolos especiales" };
         return { ok: true };
       }
+
+      searchArticle(id) {
+        for (let i = 0; i < this._productos.length; i++) {
+          if (this._productos[i].id === id) {
+            return {
+              product: this._productos[i],
+              message: "Producto encontrado",
+            };
+          }
+        }
+        if (id < 0) {
+          return { product: "no encontrado", message: "Producto invalido" };
+        } else {
+          return { product: "no encontrado", message: "Producto inexistente" };
+        }
+      }
+
+      getArticles() {
+        if (this._productos.length === 0) {
+          return { articles: [], message: "no hay articulos" };
+        }
+        return { articles: this._productos, message: "productos listados" };
+      }
+
+      eraseArticle(id) {
+        let existe = this.searchArticle(id);
+        if (existe.message !== "Producto encontrado") {
+          return { message: "No se encontro el articulo" };
+        }
+
+        let index = -1;
+        for (let i = 0; i < this._productos.length; i++) {
+          if (id === this._productos[i].id) {
+            index = i;
+          }
+        }
+
+        if (index !== -1) {
+          this._productos.splice(index, 1);
+          return { message: "El articulo fue eliminado correctamente" };
+        } else {
+          return { message: "Error al eliminar el articulo" };
+        }
+      }
+
+      editArticle(_id, price, _stock, name) {
+        let existe = this.searchArticle(_id);
+        if (existe.message !== "Producto encontrado") {
+          return { message: "No se encontro el articulo" };
+        }
+        let producto = existe.product;
+        producto.nombre = name;
+        producto.stock = _stock;
+        producto.precio = price;
+        return { message: "El articulo fue editado exitosamente" };
+      }
+
+      addArticle(_id, price, _stock, name) {
+        let existe = this.searchArticle(_id).message;
+        if (existe === "Producto encontrado") {
+          return { message: "Ya hay un articulo con esa id" };
+        }
+        let newProduct = {
+          id: _id,
+          nombre: name,
+          precio: price,
+          stock: _stock,
+        };
+        this._productos.push(newProduct);
+        return { message: "Producto agregado exitosamente" };
+      }
+
+      changeArticleStock(cantidad, id) {
+        let encontrado = this.searchArticle(id);
+        if (isNaN(encontrado.product.stock)) {
+          return { message: "Stock invalido" };
+        } else if (
+          encontrado.product.stock <= 0 ||
+          cantidad > encontrado.product.stock
+        ) {
+          return { message: "No hay stock suficiente" };
+        } else {
+          encontrado.product.stock = encontrado.product.stock - cantidad;
+          return { message: "Stock cambiado exitosamente" };
+        }
+      }
     }
 
     class ApplicationUI {
+      constructor(model) {
+        this.model = model;
+      }
+
       mainMenu() {
         let opt = "";
         do {
-          opt = prompt("menu principal:\n" + "1 iniciar sesion\n" + "2 salir");
-          if (opt === "1") loginFlow();
-          else if (opt === "2") alert("saliendo");
-          else alert("opcion invalida");
+          opt = prompt("Menú principal:\n1) Iniciar sesión\n2) Salir");
+          if (opt === "1") this.loginFlow();
+          else if (opt === "2") alert("Saliendo...");
+          else alert("Opción inválida");
         } while (opt !== "2");
-      }
-      createAccount() {
-        let u = prompt("ingrese nombre de usuario");
-        if (!u || isValidUserGetData(u)) {
-          alert("usuario invalido o ya existe");
-          return;
-        }
-        let r = prompt(
-          "ingrese categoria: Administrador, Cliente, Vendedor, Trabajador"
-        );
-        if (!permissions[r]) {
-          alert("categoria invalida");
-          return;
-        }
-        let pw = prompt("ingrese contrasenia");
-        let v = isPasswordSecure(pw);
-        if (!v.ok) {
-          alert("contrasenia insegura: " + v.reason);
-          return;
-        }
-        authData.set(u, {
-          password: pw,
-          failedLoginCounter: 0,
-          isLocked: false,
-          role: r,
-        });
-        alert("cuenta creada");
-      }
-      changePassword(u) {
-        let o = isValidUserGetData(u);
-        let pw = prompt("ingrese nueva contrasenia");
-        let v = isPasswordSecure(pw);
-        if (!v.ok) {
-          alert("contrasenia insegura: " + v.reason);
-          return;
-        }
-        if (pw === o.password) {
-          alert("igual a la anterior");
-          return;
-        }
-        o.password = pw;
-        o.failedLoginCounter = 0;
-        alert("contrasenia actualizada");
       }
 
       loginFlow() {
-        let a = 0;
         while (true) {
-          let u = prompt("ingrese usuario");
-          let p = prompt("ingrese contrasenia");
-          let r = authenticateUser(u, p);
-          if (r.status) {
-            alert("bienvenido " + u);
-            postLoginMenu(u);
+          let u = prompt("Ingrese usuario:");
+          let p = prompt("Ingrese contraseña:");
+          let result = this.model.authenticateUser(u, p);
+          if (result.status) {
+            alert("Bienvenido " + u);
+            this.postLoginMenu(u);
             break;
           } else {
-            if (r.result === "BLOCKED_USER") {
-              alert("usuario bloqueado contacte al administrador");
-              break;
-            }
-            alert("usuario o contrasenia incorrecta");
-            a = a + 1;
-            if (a >= maxLoginFailedAttempts) {
-              let x = isValidUserGetData(u);
-              if (x) x.isLocked = true;
-              alert("usuario bloqueado contacte al administrador");
-              break;
-            }
+            alert("Error: " + result.result);
+            if (result.result === "BLOCKED_USER") break;
           }
         }
       }
 
-      postLoginMenu(u) {
-        let user = isValidUserGetData(u);
-        let role = user.role;
-        let opcion = "";
+      postLoginMenu(username) {
+        const role = this.model.isValidUserGetData(username).role;
+        const permissions = this.model._permissions[role];
+
+        let opt = "";
         do {
-          opcion = prompt(
-            "menu acciones:\n" +
-              "1 cambiar contrasenia\n" +
-              "2 listar articulos\n" +
-              "3 nuevo articulo\n" +
-              "4 editar articulo\n" +
-              "5 comprar articulo\n" +
-              "6 eliminar articulo\n" +
-              "8 crear cuenta\n" +
-              "7 salir"
+          opt = prompt(
+            `Menú para ${role}:\n` +
+              (permissions.includes("2") ? "2) Listar artículos\n" : "") +
+              (permissions.includes("3") ? "3) Agregar artículo\n" : "") +
+              (permissions.includes("4") ? "4) Editar artículo\n" : "") +
+              (permissions.includes("5") ? "5) Comprar artículo\n" : "") +
+              (permissions.includes("6") ? "6) Eliminar artículo\n" : "") +
+              "0) Cerrar sesión"
           );
-          let permitida = false;
-          if (opcion === "1") permitida = true;
-          else {
-            let reglas = permissions[role];
-            for (let i = 0; i < reglas.length; i = i + 1) {
-              if (reglas[i] === opcion) {
-                permitida = true;
-                break;
-              }
-            }
+
+          switch (opt) {
+            case "2":
+              if (permissions.includes("2")) this.listArticles();
+              else alert("No tiene permiso");
+              break;
+            case "3":
+              if (permissions.includes("3")) this.nuevoArticulo();
+              else alert("No tiene permiso");
+              break;
+            case "4":
+              if (permissions.includes("4")) this.editarArticulo();
+              else alert("No tiene permiso");
+              break;
+            case "5":
+              if (permissions.includes("5")) this.buyArticle();
+              else alert("No tiene permiso");
+              break;
+            case "6":
+              if (permissions.includes("6")) this.eraseArticulo();
+              else alert("No tiene permiso");
+              break;
+            case "0":
+              alert("Sesión cerrada.");
+              break;
+            default:
+              alert("Opción inválida");
           }
-          if (!permitida) alert("accion no permitida");
-          else {
-            if (opcion === "1") changePassword(u);
-            else if (opcion === "2") listArticulos();
-            else if (opcion === "3") nuevoArticulo();
-            else if (opcion === "4") editarArticulo();
-            else if (opcion === "5") comprarArticulo();
-            else if (opcion === "6") eliminarArticulo();
-            else if (opcion === "8") createAccount();
-          }
-        } while (opcion !== "7");
+        } while (opt !== "0");
+      }
+
+      nuevoArticulo() {
+        let id = parseInt(prompt("Ingrese ID"));
+        if (isNaN(id) || id < 0) return alert("ID inválido");
+
+        let nombre = prompt("Ingrese nombre");
+        if (!nombre) return alert("Debe tener nombre");
+
+        let precio = parseFloat(prompt("Ingrese precio"));
+        if (isNaN(precio)) return alert("Precio inválido");
+
+        let stock = parseInt(prompt("Ingrese stock"));
+        if (isNaN(stock)) return alert("Stock inválido");
+
+        let resultado = this.model.addArticle(id, precio, stock, nombre);
+        alert(resultado.message);
+      }
+
+      editarArticulo() {
+        let id = parseInt(prompt("Ingrese ID a editar"));
+        if (isNaN(id) || id < 0) return alert("ID inválido");
+
+        let nombre = prompt("Ingrese nuevo nombre");
+        if (!nombre) return alert("Debe tener nombre");
+
+        let precio = parseFloat(prompt("Ingrese nuevo precio"));
+        if (isNaN(precio)) return alert("Precio inválido");
+
+        let stock = parseInt(prompt("Ingrese nuevo stock"));
+        if (isNaN(stock)) return alert("Stock inválido");
+
+        let resultado = this.model.editArticle(id, precio, stock, nombre);
+        alert(resultado.message);
+      }
+
+      buyArticle() {
+        let id = parseInt(prompt("Ingrese ID a comprar"));
+        if (isNaN(id) || id < 0) return alert("ID inválido");
+
+        let cantidad = parseInt(prompt("Ingrese cantidad a comprar"));
+        if (isNaN(cantidad) || cantidad <= 0) return alert("Cantidad inválida");
+
+        let resultado = this.model.changeArticleStock(cantidad, id);
+        alert(resultado.message);
+      }
+
+      listArticles() {
+        let resultado = this.model.getArticles();
+        resultado.articles.forEach((art) => {
+          console.log(
+            `ID: ${art.id} | Nombre: ${art.nombre} | Precio: $${art.precio} | Stock: ${art.stock}`
+          );
+        });
+        alert(resultado.message);
+      }
+
+      eraseArticulo() {
+        let id = parseInt(prompt("Ingrese ID a eliminar"));
+        if (isNaN(id) || id < 0) return alert("ID inválido");
+
+        let resultado = this.model.eraseArticle(id);
+        alert(resultado.message);
       }
     }
 
-    window.onload = mainMenu;
+    let modelo = new ApplicationModel();
+    let ui = new ApplicationUI(modelo);
+    ui.mainMenu();
+    window.onload = ui.mainMenu();
   </script>
 </html>
