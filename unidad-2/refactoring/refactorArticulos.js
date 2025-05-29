@@ -40,6 +40,17 @@ _authData.set("deposito", {
 //separacion
 
 ///////////////Back////////////////////
+function editArticle(_id, price, _stock, name) {
+  existe = searchArticle(_id);
+  if (existe.message !== "Producto encontrado") {
+    return { message: "No se encontro el articulo" };
+  }
+  producto = existe.product;
+  producto.nombre = name;
+  producto.stock = _stock;
+  producto.precio = price;
+  return { message: "El articulo fue editado exitosamente" };
+}
 
 function addArticle(_id, price, _stock, name) {
   existe = searchArticle(_id).message;
@@ -88,10 +99,32 @@ function getArticles() {
 }
 
 ////////////front///////////////
+function editarArticulo() {
+  let id = parseInt(prompt("ingrese id a editar"));
+  if(isNaN(id) || id <= -1){
+    alert("Id invalido")
+  }
+  let nombre = prompt("ingrese nuevo nombre");
+  if(!nombre){
+  alert("El producto debe tener un nombre");
+    return;}
+
+  let precio = parseFloat(prompt("ingrese nuevo precio"));
+  if(isNaN(precio) || id <= -1){
+    alert("Precio invalido")
+  }
+  let stock = parseInt(prompt("ingrese nuevo stock"))
+  if(isNaN(stock) || id <= -1){
+    alert("Stock invalido")
+  };
+
+  resultado= editArticle(id,precio,stock,nombre)
+  alert(resultado.message);
+}
 function nuevoArticulo() {
   let id = parseInt(prompt("ingrese id"));
 
-  if (isNaN(id)) {
+  if (isNaN(id) || id <= -1) {
     alert("id invalido");
     return;
   }
@@ -110,7 +143,7 @@ function nuevoArticulo() {
     alert("Stock invalido");
     return;
   }
-  producto = addArticle(id,precio,stock,nombre)
+  producto = addArticle(id, precio, stock, nombre);
   alert(producto.message);
 }
 
@@ -145,5 +178,4 @@ function listArticles() {
   alert(productos.message);
 }
 
-
-nuevoArticulo()
+nuevoArticulo();

@@ -7,31 +7,7 @@
   <body></body>
   <script type="text/javascript">
    
-    function editarArticulo() {
-      //backfront
-      let id = parseInt(prompt("ingrese id a editar"));
-      let idx = -1;
-      for (let i = 0; i < productos.length; i = i + 1) {
-        if (productos[i].id === id) {
-          idx = i;
-          break;
-        }
-      }
-      if (idx < 0) {
-        alert("no existe");
-        return;
-      }
-      let a = productos[idx];
-      let n = prompt("ingrese nuevo nombre", a.nombre);
-      if (n) a.nombre = n;
-      let prs = prompt("ingrese nuevo precio", a.precio);
-      let prn = parseFloat(prs);
-      if (!isNaN(prn)) a.precio = prn;
-      let sts = prompt("ingrese nuevo stock", a.stock);
-      let stn = parseInt(sts);
-      if (!isNaN(stn)) a.stock = stn;
-      alert("articulo actualizado");
-    }
+    
 
     function eliminarArticulo() {
       //backfront
