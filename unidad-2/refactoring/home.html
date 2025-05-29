@@ -7,25 +7,6 @@
   <body></body>
   <script type="text/javascript">
    
-    
-
-    function eliminarArticulo() {
-      //backfront
-      let id = parseInt(prompt("ingrese id a eliminar"));
-      let idx = -1;
-      for (let i = 0; i < productos.length; i = i + 1) {
-        if (productos[i].id === id) {
-          idx = i;
-          break;
-        }
-      }
-      if (idx < 0) {
-        alert("no existe");
-        return;
-      }
-      productos.splice(idx, 1);
-      alert("articulo eliminado");
-    }
 
     class ApplicationModel {
       constructor() {

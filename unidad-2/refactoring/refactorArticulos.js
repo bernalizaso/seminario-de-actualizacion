@@ -38,8 +38,36 @@ _authData.set("deposito", {
 });
 
 //separacion
-
+function eliminarArticulo() {
+  let id = parseInt(prompt("ingrese id a eliminar"));
+  if (isNaN(id) || id <= -1) {
+    alert("Id invalido");
+    return;
+  }
+  resultado = eraseArticle(id);
+  alert(resultado.message);
+}
 ///////////////Back////////////////////
+function eraseArticle(id) {
+  existe = searchArticle(id);
+  if (existe.message !== "Producto encontrado") {
+    return { message: "No se encontro el articulo" };
+  }
+
+  index = -1;
+  for (i = 0; i < _productos.length; i++) {
+    if (id === _productos[i].id) {
+      index = i;
+    }
+  }
+  if (index !== -1) {
+    _productos.splice(index, 1);
+    return { message: "El articulo fue eliminado correctamente" };
+  } else {
+    return { message: "Error al eliminar el articulo" };
+  }
+}
+
 function editArticle(_id, price, _stock, name) {
   existe = searchArticle(_id);
   if (existe.message !== "Producto encontrado") {
@@ -101,24 +129,28 @@ function getArticles() {
 ////////////front///////////////
 function editarArticulo() {
   let id = parseInt(prompt("ingrese id a editar"));
-  if(isNaN(id) || id <= -1){
-    alert("Id invalido")
+  if (isNaN(id) || id <= -1) {
+    alert("Id invalido");
+    return;
   }
   let nombre = prompt("ingrese nuevo nombre");
-  if(!nombre){
-  alert("El producto debe tener un nombre");
-    return;}
+  if (!nombre) {
+    alert("El producto debe tener un nombre");
+    return;
+  }
 
   let precio = parseFloat(prompt("ingrese nuevo precio"));
-  if(isNaN(precio) || id <= -1){
-    alert("Precio invalido")
+  if (isNaN(precio) || id <= -1) {
+    alert("Precio invalido");
+    return;
   }
-  let stock = parseInt(prompt("ingrese nuevo stock"))
-  if(isNaN(stock) || id <= -1){
-    alert("Stock invalido")
-  };
+  let stock = parseInt(prompt("ingrese nuevo stock"));
+  if (isNaN(stock) || id <= -1) {
+    alert("Stock invalido");
+    return;
+  }
 
-  resultado= editArticle(id,precio,stock,nombre)
+  resultado = editArticle(id, precio, stock, nombre);
   alert(resultado.message);
 }
 function nuevoArticulo() {
@@ -162,8 +194,10 @@ function buyArticle() {
     resultado = changeArticleStock(cantidad, id);
     if (resultado.message === "Stock cambiado exitosamente") {
       alert("Articulo comprado exitosamente");
+      return;
     } else {
       alert("El articulo no fue comprado");
+      return;
     }
   }
 }
@@ -178,4 +212,4 @@ function listArticles() {
   alert(productos.message);
 }
 
-nuevoArticulo();
+
