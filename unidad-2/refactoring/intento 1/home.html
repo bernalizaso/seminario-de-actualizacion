@@ -13,10 +13,15 @@
         this._productos = [
           { id: 1, nombre: "Lavandina x 1L", precio: 875.25, stock: 3000 },
           { id: 4, nombre: "Detergente x 500mL", precio: 1102.45, stock: 2010 },
-          { id: 22,nombre: "Jabon en polvo x 250g", precio: 650.22, stock: 407},
+          {
+            id: 22,
+            nombre: "Jabon en polvo x 250g",
+            precio: 650.22,
+            stock: 407,
+          },
         ];
         this._permissions = {
-          Administrador: ["2", "3", "4", "5", "6", "8"],
+          Administrador: ["2", "3", "4", "5", "6", "7"],
           Cliente: ["2", "5"],
           Vendedor: ["2", "5"],
           Trabajador: ["2", "3", "4"],
@@ -163,6 +168,31 @@
           return { message: "Stock cambiado exitosamente" };
         }
       }
+
+      addUser(username, password, role) {
+        if (this._authData.has(username)) {
+          return { ok: false, message: "El nombre de usuario ya existe" };
+        }
+        const pwCheck = this.isPasswordSecure(password);
+        if (!pwCheck.ok) {
+          return {
+            ok: false,
+            message: "Contraseña insegura: " + pwCheck.reason,
+          };
+        }
+        if (!this._permissions[role]) {
+          return { ok: false, message: "Rol inválido" };
+        }
+
+        this._authData.set(username, {
+          password: password,
+          failedLoginCounter: 0,
+          isLocked: false,
+          role: role,
+        });
+
+        return { ok: true, message: "Usuario creado exitosamente" };
+      }
     }
 
     class ApplicationUI {
@@ -209,6 +239,7 @@
               (permissions.includes("4") ? "4) Editar artículo\n" : "") +
               (permissions.includes("5") ? "5) Comprar artículo\n" : "") +
               (permissions.includes("6") ? "6) Eliminar artículo\n" : "") +
+              (permissions.includes("7") ? "7) Crear nuevo usuario\n" : "") +
               "0) Cerrar sesión"
           );
 
@@ -233,6 +264,11 @@
               if (permissions.includes("6")) this.eraseArticulo();
               else alert("No tiene permiso");
               break;
+            case "7":
+              if (permissions.includes("7")) this.crearUsuario();
+              else alert("No tiene permiso");
+              break;
+
             case "0":
               alert("Sesión cerrada.");
               break;
@@ -290,7 +326,7 @@
       listArticles() {
         let resultado = this.model.getArticles();
         resultado.articles.forEach((art) => {
-          console.log(
+          alert(
             `ID: ${art.id} | Nombre: ${art.nombre} | Precio: $${art.precio} | Stock: ${art.stock}`
             //cambiar de console a alert para mantener sintaxis y funcionamiento
           );
@@ -303,6 +339,26 @@
         if (isNaN(id) || id < 0) return alert("ID inválido");
 
         let resultado = this.model.eraseArticle(id);
+        alert(resultado.message);
+      }
+
+      crearUsuario() {
+        let username = prompt("Ingrese nombre de usuario:");
+        if (!username) return alert("Nombre inválido");
+
+        let password = prompt("Ingrese contraseña:");
+        if (!password) return alert("Contraseña inválida");
+
+        let role = prompt(
+          "Ingrese rol (Administrador, Cliente, Vendedor, Trabajador):"
+        );
+        if (
+          !["Administrador", "Cliente", "Vendedor", "Trabajador"].includes(role)
+        ) {
+          return alert("Rol inválido");
+        }
+
+        const resultado = this.model.addUser(username, password, role);
         alert(resultado.message);
       }
     }
