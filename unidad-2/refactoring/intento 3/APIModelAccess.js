@@ -51,17 +51,19 @@ class APIModelAccess {
   }
 
   authenticateUser(u, p) {
+    let api = { status: false, result: null };
     let user = this.isValidUserGetData(u);
-    if (!user) return { status: "ERROR", result: "USER_NOT_FOUND" };
-    if (user.isLocked) return { status: "ERROR", result: "BLOCKED_USER" };
-    if (user.password === p) return { status: "OK", result: "LOGIN_SUCCESS" };
-
-    user.failedLoginCounter++;
-    if (user.failedLoginCounter >= this._maxLoginFailedAttempts) {
-      user.isLocked = true;
-      return { status: "ERROR", result: "BLOCKED_USER" };
+    if (!user) api.result = "USER_NOT_FOUND";
+    else if (user.isLocked) api.result = "BLOCKED_USER";
+    else if (user.password === p) api.status = true;
+    else {
+      user.failedLoginCounter = user.failedLoginCounter + 1;
+      if (user.failedLoginCounter >= this._maxLoginFailedAttempts) {
+        user.isLocked = true;
+        api.result = "BLOCKED_USER";
+      } else api.result = "USER_PASSWORD_FAILED";
     }
-    return { status: "ERROR", result: "USER_PASSWORD_FAILED" };
+    return api;
   }
 
   isPasswordSecure(pw) {
@@ -79,52 +81,66 @@ class APIModelAccess {
   }
 
   searchArticle(id) {
-    let producto = this._productos.find((p) => p.id === id);
-    if (producto) {
-      return { status: "OK", result: producto };
-    } else if (id < 0) {
-      return { status: "ERROR", result: "Producto invalido" };
+    for (let i = 0; i < this._productos.length; i++) {
+      if (this._productos[i].id === id) {
+        return {
+          product: this._productos[i],
+          message: "Producto encontrado",
+        };
+      }
+    }
+    if (id < 0) {
+      return { product: "no encontrado", message: "Producto invalido" };
     } else {
-      return { status: "ERROR", result: "Producto inexistente" };
+      return { product: "no encontrado", message: "Producto inexistente" };
     }
   }
 
   getArticles() {
     if (this._productos.length === 0) {
-      return { status: "OK", result: [] };
+      return { articles: [], message: "no hay articulos" };
     }
-    return { status: "OK", result: this._productos };
+    return { articles: this._productos, message: "productos listados" };
   }
 
   eraseArticle(id) {
-    let busqueda = this.searchArticle(id);
-    if (busqueda.status === "ERROR") {
-      return { status: "ERROR", result: "No se encontro el articulo" };
+    let existe = this.searchArticle(id);
+    if (existe.message !== "Producto encontrado") {
+      return { message: "No se encontro el articulo" };
     }
 
-    this._productos = this._productos.filter((p) => p.id !== id);
-    return { status: "OK", result: "Articulo eliminado correctamente" };
+    let index = -1;
+    for (let i = 0; i < this._productos.length; i++) {
+      if (id === this._productos[i].id) {
+        index = i;
+      }
+    }
+
+    if (index !== -1) {
+      this._productos.splice(index, 1);
+      return { message: "El articulo fue eliminado correctamente" };
+    } else {
+      return { message: "Error al eliminar el articulo" };
+    }
   }
 
   editArticle(_id, price, _stock, name) {
-    let busqueda = this.searchArticle(_id);
-    if (busqueda.status === "ERROR") {
-      return { status: "ERROR", result: "No se encontro el articulo" };
+    let existe = this.searchArticle(_id);
+    if (existe.message !== "Producto encontrado") {
+      return { message: "No se encontro el articulo" };
     }
-
-    let producto = busqueda.result;
+    let producto = existe.product;
     producto.nombre = name;
     producto.stock = _stock;
     producto.precio = price;
-    return { status: "OK", result: "Articulo editado exitosamente" };
+    return { message: "El articulo fue editado exitosamente" };
   }
 
   addArticle(_id, price, _stock, name) {
-    let existe = this.searchArticle(_id);
-    if (existe.status === "OK") {
-      return { status: "ERROR", result: "Ya hay un articulo con esa ID" };
+    let existe = this.searchArticle(_id).message;
+    if (existe === "Producto encontrado") {
+      return { message: "Ya hay un articulo con esa id" };
     }
-
     let newProduct = {
       id: _id,
       nombre: name,
@@ -132,40 +148,37 @@ class APIModelAccess {
       stock: _stock,
     };
     this._productos.push(newProduct);
-    return { status: "OK", result: "Producto agregado exitosamente" };
+    return { message: "Producto agregado exitosamente" };
   }
 
   changeArticleStock(cantidad, id) {
     let encontrado = this.searchArticle(id);
-    if (encontrado.status === "ERROR") {
-      return { status: "ERROR", result: encontrado.result };
+    if (isNaN(encontrado.product.stock)) {
+      return { message: "Stock invalido" };
+    } else if (
+      encontrado.product.stock <= 0 ||
+      cantidad > encontrado.product.stock
+    ) {
+      return { message: "No hay stock suficiente" };
+    } else {
+      encontrado.product.stock = encontrado.product.stock - cantidad;
+      return { message: "Stock cambiado exitosamente" };
     }
-
-    let producto = encontrado.result;
-    if (isNaN(producto.stock)) {
-      return { status: "ERROR", result: "Stock invalido" };
-    }
-    if (producto.stock <= 0 || cantidad > producto.stock) {
-      return { status: "ERROR", result: "No hay stock suficiente" };
-    }
-
-    producto.stock -= cantidad;
-    return { status: "OK", result: "Stock cambiado exitosamente" };
   }
 
   addUser(username, password, role) {
     if (this._authData.has(username)) {
-      return { status: "ERROR", result: "El nombre de usuario ya existe" };
+      return { ok: false, message: "El nombre de usuario ya existe" };
     }
     const pwCheck = this.isPasswordSecure(password);
     if (!pwCheck.ok) {
       return {
-        status: "ERROR",
-        result: "Contraseña insegura: " + pwCheck.reason,
+        ok: false,
+        message: "Contraseña insegura: " + pwCheck.reason,
       };
     }
     if (!this._permissions[role]) {
-      return { status: "ERROR", result: "Rol invalido" };
+      return { ok: false, message: "Rol inválido" };
     }
 
     this._authData.set(username, {
@@ -175,7 +188,7 @@ class APIModelAccess {
       role: role,
     });
 
-    return { status: "OK", result: "Usuario creado exitosamente" };
+    return { ok: true, message: "Usuario creado exitosamente" };
   }
 }
 
