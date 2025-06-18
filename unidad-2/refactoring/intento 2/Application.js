@@ -1,33 +1,36 @@
-import { LoginApplicationView } from './LoginApplicationView.js';
+import { LoginApplicationView } from "./LoginApplicationView.js";
 
-class Application
-{
-	constructor( apiInstanceObject )
-	{
-		this._api = apiInstanceObject;
-		this._defaultView = new LoginApplicationView(this._api); 
-		this._maxLoginFailedAttempts = this._api.getMaxLoginAttempts();
-		this._attempts = 0;
-		this._api_return = null;
-	}
+class Application {
+  constructor(apiInstanceObject) {
+    this._api = apiInstanceObject;
+    this._defaultView = new LoginApplicationView(this._api);
+    this._maxLoginFailedAttempts = this._api.getMaxLoginAttempts();
+    this._attempts = 0;
+    this._api_return = null;
+  }
 
-	init()
-	{
-		this._api_return = this._defaultView.show();
-	}
+  init() {
+    this._api_return = this._defaultView.show();
+  }
 
-	run()
-	{
-		while( this._api_return.status === 'ERROR' && this._api_return.result === 'USER_PASSWORD_FAILED' && this._attempts < this._maxLoginFailedAttempts )
-		{
-			this._api_return = this._defaultView.show();
+  run() {
+    if (!this._api_return) return;
 
-			if ( this._api_return.status === 'ERROR' && this._api_return.result === 'USER_PASSWORD_FAILED' )
-			{
-				this._attempts++;
-			}
-		}
-	}
+    while (
+      this._api_return.status === "ERROR" &&
+      this._api_return.result === "USER_PASSWORD_FAILED" &&
+      this._attempts < this._maxLoginFailedAttempts
+    ) {
+      this._api_return = this._defaultView.show();
+
+      if (
+        this._api_return.status === "ERROR" &&
+        this._api_return.result === "USER_PASSWORD_FAILED"
+      ) {
+        this._attempts++;
+      }
+    }
+  }
 }
 
 export { Application };
