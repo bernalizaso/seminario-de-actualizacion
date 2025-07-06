@@ -220,3 +220,10 @@ class APIModelAccess {
 export { APIModelAccess };
 
 //_marcados como nuevos metodos 
+
+//Si se trabaja sobre una misma pestaña, los cambios (por ejemplo, en stock)
+//se mantienen al recargar la pagina, al cambiar de usuario y se transpolan a 
+//cualquiera con acceso a la aplicacion.
+//A diferencia con el refactoring original, aca tenemos que parcear los objetos a Json
+//ya que, si bien se puede trabajar  y convertir cadenas integers u otros datos primitivos
+//no puede guardar objetos directamente, por lo que hay que cambiar a json
