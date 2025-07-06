@@ -1,4 +1,4 @@
-// Archivo APIModelAccess.js implementado con indexedDB y métodos async
+//APIModelAccess.js implementado con indexedDB y metodos async/await
 class APIModelAccess {
   constructor() {
     this._dbName = "MyAppDB";
@@ -215,7 +215,7 @@ class APIModelAccess {
     const pwCheck = this.isPasswordSecure(password);
     if (!pwCheck.ok) return { ok: false, message: "Contraseña insegura: " + pwCheck.reason };
 
-    if (!this._permissions[role]) return { ok: false, message: "Rol inválido" };
+    if (!this._permissions[role]) return { ok: false, message: "Rol invalido" };
 
     const newUser = { username, password, failedLoginCounter: 0, isLocked: false, role };
     await this._addToStore("usuarios", newUser);

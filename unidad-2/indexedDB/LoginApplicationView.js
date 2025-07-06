@@ -1,4 +1,4 @@
-// Archivo LoginApplicationView.js actualizado con async/await para indexedDB
+//LoginApplicationView.js actualizada con los async/await 
 class LoginApplicationView {
   constructor(model) {
     this.model = model;
@@ -7,10 +7,10 @@ class LoginApplicationView {
   async show() {
     let opt = "";
     do {
-      opt = prompt("Menú principal:\n1) Iniciar sesión\n2) Salir");
+      opt = prompt("Menu principal:\n1) Iniciar sesion\n2) Salir");
       if (opt === "1") await this.loginFlow();
       else if (opt === "2") alert("Saliendo...");
-      else alert("Opción inválida");
+      else alert("Opcion invalida");
     } while (opt !== "2");
   }
 
@@ -38,14 +38,14 @@ class LoginApplicationView {
     let opt = "";
     do {
       opt = prompt(
-        `Menú para ${role}:\n` +
-          (permissions.includes("2") ? "2) Listar artículos\n" : "") +
-          (permissions.includes("3") ? "3) Agregar artículo\n" : "") +
-          (permissions.includes("4") ? "4) Editar artículo\n" : "") +
-          (permissions.includes("5") ? "5) Comprar artículo\n" : "") +
-          (permissions.includes("6") ? "6) Eliminar artículo\n" : "") +
+        `Menu para ${role}:\n` +
+          (permissions.includes("2") ? "2) Listar articulos\n" : "") +
+          (permissions.includes("3") ? "3) Agregar articulo\n" : "") +
+          (permissions.includes("4") ? "4) Editar articulo\n" : "") +
+          (permissions.includes("5") ? "5) Comprar articulo\n" : "") +
+          (permissions.includes("6") ? "6) Eliminar articulo\n" : "") +
           (permissions.includes("7") ? "7) Crear nuevo usuario\n" : "") +
-          "0) Cerrar sesión"
+          "0) Cerrar sesion"
       );
 
       switch (opt) {
@@ -74,10 +74,10 @@ class LoginApplicationView {
           else alert("No tiene permiso");
           break;
         case "0":
-          alert("Sesión cerrada.");
+          alert("Sesion cerrada.");
           break;
         default:
-          alert("Opción inválida");
+          alert("Opcion invalida");
       }
     } while (opt !== "0");
   }
@@ -94,16 +94,16 @@ class LoginApplicationView {
 
   async nuevoArticulo() {
     let id = parseInt(prompt("Ingrese ID"));
-    if (isNaN(id) || id < 0) return alert("ID inválido");
+    if (isNaN(id) || id < 0) return alert("ID invalido");
 
     let nombre = prompt("Ingrese nombre");
     if (!nombre) return alert("Debe tener nombre");
 
     let precio = parseFloat(prompt("Ingrese precio"));
-    if (isNaN(precio)) return alert("Precio inválido");
+    if (isNaN(precio)) return alert("Precio invalido");
 
     let stock = parseInt(prompt("Ingrese stock"));
-    if (isNaN(stock)) return alert("Stock inválido");
+    if (isNaN(stock)) return alert("Stock invalido");
 
     const resultado = await this.model.addArticle(id, precio, stock, nombre);
     alert(resultado.message);
@@ -111,16 +111,16 @@ class LoginApplicationView {
 
   async editarArticulo() {
     let id = parseInt(prompt("Ingrese ID a editar"));
-    if (isNaN(id) || id < 0) return alert("ID inválido");
+    if (isNaN(id) || id < 0) return alert("ID invalido");
 
     let nombre = prompt("Ingrese nuevo nombre");
     if (!nombre) return alert("Debe tener nombre");
 
     let precio = parseFloat(prompt("Ingrese nuevo precio"));
-    if (isNaN(precio)) return alert("Precio inválido");
+    if (isNaN(precio)) return alert("Precio invalido");
 
     let stock = parseInt(prompt("Ingrese nuevo stock"));
-    if (isNaN(stock)) return alert("Stock inválido");
+    if (isNaN(stock)) return alert("Stock invalido");
 
     const resultado = await this.model.editArticle(id, precio, stock, nombre);
     alert(resultado.message);
@@ -128,10 +128,10 @@ class LoginApplicationView {
 
   async buyArticle() {
     let id = parseInt(prompt("Ingrese ID a comprar"));
-    if (isNaN(id) || id < 0) return alert("ID inválido");
+    if (isNaN(id) || id < 0) return alert("ID invalido");
 
     let cantidad = parseInt(prompt("Ingrese cantidad a comprar"));
-    if (isNaN(cantidad) || cantidad <= 0) return alert("Cantidad inválida");
+    if (isNaN(cantidad) || cantidad <= 0) return alert("Cantidad invalida");
 
     const resultado = await this.model.changeArticleStock(cantidad, id);
     alert(resultado.message);
@@ -139,7 +139,7 @@ class LoginApplicationView {
 
   async eraseArticulo() {
     let id = parseInt(prompt("Ingrese ID a eliminar"));
-    if (isNaN(id) || id < 0) return alert("ID inválido");
+    if (isNaN(id) || id < 0) return alert("ID invalido");
 
     const resultado = await this.model.eraseArticle(id);
     alert(resultado.message);
@@ -147,10 +147,10 @@ class LoginApplicationView {
 
   async crearUsuario() {
     let username = prompt("Ingrese nombre de usuario:");
-    if (!username) return alert("Nombre inválido");
+    if (!username) return alert("Nombre invalido");
 
     let password = prompt("Ingrese contraseña:");
-    if (!password) return alert("Contraseña inválida");
+    if (!password) return alert("Contraseña invalida");
 
     let role = prompt(
       "Ingrese rol (Administrador, Cliente, Vendedor, Trabajador):"
@@ -158,7 +158,7 @@ class LoginApplicationView {
     if (
       !["Administrador", "Cliente", "Vendedor", "Trabajador"].includes(role)
     ) {
-      return alert("Rol inválido");
+      return alert("Rol invalido");
     }
 
     const resultado = await this.model.addUser(username, password, role);
