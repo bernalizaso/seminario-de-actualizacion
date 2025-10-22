@@ -32,7 +32,7 @@ class XMLHttpRequestTable extends HTMLElement {
         this.outputTable.setHeader(headers);
         this.outputTable.setData(data, fields);
 
-        // 🔥 Vincular clicks sin querySelector
+
         for (let i = 0; i < this.outputTable.rows.length; i++) {
           const row = this.outputTable.rows[i];
           const userId = data[i].id;
@@ -40,7 +40,7 @@ class XMLHttpRequestTable extends HTMLElement {
           row.style.cursor = "pointer";
           row.classList.add("w3-hover-light-grey");
 
-          // Bind limpio
+
           row.addEventListener("click", () => this.showUserDetails(userId));
         }
       })

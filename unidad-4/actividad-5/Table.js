@@ -27,7 +27,7 @@ class DataTable extends HTMLElement {
 
   setData(dataArray, fields) {
     this.tbody.textContent = "";
-    this.rows = []; // guardamos las filas nuevas
+    this.rows = []; 
 
     for (let i = 0; i < dataArray.length; i++) {
       const row = document.createElement("tr");
@@ -40,7 +40,7 @@ class DataTable extends HTMLElement {
       }
 
       this.tbody.appendChild(row);
-      this.rows.push(row); // guardamos referencia
+      this.rows.push(row); 
     }
   }
 
