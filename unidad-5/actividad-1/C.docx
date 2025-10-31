@@ -1,0 +1,69 @@
+Endpoint: /apiI/IAnalyticsService/TrackEvent
+Método HTTP: POST
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "eventName": "ProductViewed",
+        "properties": {
+            "userId": "12345",
+            "productId": "998",
+            "category": "Electronics"
+        }
+    }
+Estructura de datos OUT:
+    {
+        "success": true,
+        "description": "Event logged successfully."
+    }
+Estructura de datos ERR:
+    {
+        "status": "Tracking_Failure",
+        "description": "Could not log event due to server error."
+    }
+
+
+Endpoint: /apiI/IAnalyticsService/GetEventCount
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "eventName": "UserLoggedIn"
+    }
+Estructura de datos OUT:
+    {
+        "eventName": "UserLoggedIn",
+        "count": 5408
+    }
+Estructura de datos ERR:
+    {
+        "status": "Query_Error",
+        "description": "Failed to retrieve event count."
+    }
+
+Endpoint: /apiI/IAnalyticsService/GetTopEvents
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "limit": 5
+    }
+Estructura de datos OUT:
+    {
+        "UserLoggedIn": 5408,
+        "ProductViewed": 4122,
+        "ItemAddedToCart": 1560,
+        "CheckoutStarted": 780,
+        "PurchaseCompleted": 550
+    }
+Estructura de datos ERR:
+    {
+        "status": "Query_Error",
+        "description": "Invalid limit parameter or retrieval failed."
+    }
+

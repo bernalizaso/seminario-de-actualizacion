@@ -1,0 +1,114 @@
+A)(Ejercicio sacado en parte, del ejemplo):
+
+Endpoint: /IUserService/GetAllUsers
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada: -
+Cabecera salida: -
+Estructura de datos IN: -
+Estructura de datos OUT:
+[
+     {
+         "id":2,
+         "name": "example",
+         "email": "example@example.com"
+     }  
+]
+
+Estructura de datos ERR:
+{
+    "type": "error"
+    "description": "Example error.."
+}
+
+
+
+Endpoint: "IUserService/GetUserById"
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada: -
+Cabecera salida: -
+Estructura de datos IN:
+{
+    "id" : 7
+}
+Estructura de datos OUT:
+{
+     "id":-1,
+     "name": "none",
+     "email": "none@example.com"
+}
+Estructura de datos ERR:
+{
+    "type": "error"
+    "description": "User not found"
+}
+
+Endpoint: /apiI/UserService/CreateUser
+Método HTTP: POST
+Formato Serializacion: JSON
+Estructura de datos IN:
+        {
+
+        "nombre":"Berni",
+
+        "email":"example@example.com"
+
+        }
+Estructura de datos OUT:
+     {
+
+         "Result":10,
+
+         "Description": "opt",
+
+      }  
+Estructura de datos ERR:
+        {
+
+            "status": "Api_error"
+
+            "description": "Cannot create User"
+        }
+
+
+Endpoint: /apiI/IUserService/UpdateUser
+Método HTTP: PUT
+Formato Serializacion: JSON
+Estructura de datos IN:
+        {
+            "name": "Berni 2",
+            "email": "example@nuevo.example.com"
+        }
+Estructura de datos OUT:
+        {
+            "success": true,
+            "description": "User updated successfully"
+        } 
+Estructura de datos ERR:
+        {
+
+            "status": "Api_error"
+
+            "description": "User not found or data validation failed"
+        }
+
+Endpoint: /apiI/IUserService/DeleteUser
+Método HTTP: DELETE
+Formato Serializacion: JSON
+Estructura de datos IN:
+        {
+            "id": 5
+        }
+Estructura de datos OUT:
+        {
+            "success": true,
+            "description": "User 5 deleted successfully"
+        } 
+Estructura de datos ERR:
+        {
+            "status": "Api_error"
+
+            "description": "User 5 not found"
+        }
+

@@ -1,0 +1,46 @@
+Endpoint: /apiI/IAuthService/Login
+Método HTTP: POST
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "user": "berni_user",
+        "password": "mi_clave_secreta"
+    }
+Estructura de datos OUT:
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJpYXQiOjE2ODcyMDM2MDB9.AbCdEf1234567890",
+        "expires_in": 3600 
+    }
+Estructura de datos ERR:
+    {
+        "status": "AuthException",
+        "description": "Auth error: Invalid credentials."
+    }
+
+Endpoint: /apiI/IAuthService/ValidateToken
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJpYXQiOjE2ODcyMDM2MDB9.AbCdEf1234567890"
+    }
+Estructura de datos OUT:
+    {
+        "isValid": true,
+        "userId": "123",
+        "expirationDate": "2025-11-01T13:49:00Z"
+    }
+Estructura de datos ERR:
+    {
+        "status": "AuthException",
+        "description": "Auth error: Token expired or malformed."
+    }
+
+/////////////////////////////////////////////////////////////////
+Duda: No deberia documentar un metodo que esta en privado verdad? ya que estaria exponiendo 
+un detalle interno que la persona viendo la documentacion (entiendo un cliente o entidad externa que interactua con esta documentacion) 
+no tiene por que conocer ni tener acceso. Entendi bien?

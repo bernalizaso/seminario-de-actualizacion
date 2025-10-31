@@ -1,0 +1,80 @@
+Endpoint: /apiI/IFileStorage/ListFiles
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "directory": "/reports/2024"
+    }
+Estructura de datos OUT:
+    [
+        "reporte_q1.pdf",
+        "data_ventas.csv",
+        "summary.txt"
+    ]
+Estructura de datos ERR:
+    {
+        "status": "PermissionDeniedException",
+        "description": "Permiso denegado para: /reports/2024"
+    }
+
+Endpoint: /apiI/IFileStorage/ReadFile
+Método HTTP: GET
+Formato Serializacion: TEXT/JSON/CSV
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "path": "/logs/system.log"
+    }
+Estructura de datos OUT:
+    {
+        "content": "2024-10-31 [INFO] Sistema inicializado. 2024-10-31 [WARN] Bajo uso de memoria."
+    }
+Estructura de datos ERR:
+    {
+        "status": "FileNotFoundException",
+        "description": "Archivo no encontrado: /logs/system.log"
+    }
+
+Endpoint: /apiI/IFileStorage/WriteFile
+Método HTTP: POST
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "path": "/config/settings.json",
+        "content": "{\"theme\":\"dark\", \"notifications\":true}"
+    }
+Estructura de datos OUT:
+    {
+        "success": true,
+        "description": "File written successfully."
+    }
+Estructura de datos ERR:
+    {
+        "status": "PermissionDeniedException",
+        "description": "Permiso denegado para: /config/settings.json"
+    }
+
+Endpoint: /apiI/IFileStorage/DeleteFile
+Método HTTP: DELETE
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "path": "/temp/old_backup.zip"
+    }
+Estructura de datos OUT:
+    {
+        "success": true,
+        "description": "File deleted successfully: /temp/old_backup.zip"
+    }
+Estructura de datos ERR:
+    {
+        "status": "FileNotFoundException",
+        "description": "Archivo no encontrado: /temp/old_backup.zip"
+    }

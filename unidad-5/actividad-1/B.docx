@@ -1,0 +1,70 @@
+Endpoint: /apiI/IProductCatalog/SearchProducts
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "keyword": "Bread"
+    }
+Estructura de datos OUT:
+[
+    {
+        "id": 1,
+        "name": "Igea",
+        "price": 1200.50
+    },
+    {
+        "id": 2,
+        "name": "Bimbo",
+        "price": 1950.00
+    }
+]
+Estructura de datos ERR:
+    {
+        "status": "Catalog_Error",
+        "description": "Search failed due to internal error."
+    }
+
+Endpoint: /apiI/IProductCatalog/GetProductById
+Método HTTP: GET
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "id": 1
+    }
+Estructura de datos OUT:
+    {
+        "id": 1,
+        "name": "Igea",
+        "price": 1200.50
+    }
+Estructura de datos ERR:
+    {
+        "status": "Data_Not_Found",
+        "description": "Product ID 1 not found."
+    }
+
+Endpoint: /apiI/IProductCatalog/UpdateStock
+Método HTTP: PUT
+Formato Serializacion: JSON
+Cabecera entrada -
+Cabecera salida	-
+Estructura de datos IN:
+    {
+        "productId": 1,
+        "newPrice": 1500.00
+    }
+Estructura de datos OUT:
+    {
+        "success": true,
+        "Price": 1500.00,
+        "description": "Price updated successfully for Product ID 1."
+    }
+Estructura de datos ERR:
+    {
+        "status": "Update_Error",
+        "description": "Invalid stock value or Product ID 1 not found."
+    }
